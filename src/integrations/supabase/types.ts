@@ -14,16 +14,267 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      audit_log: {
+        Row: {
+          action: string
+          actor_id: string | null
+          created_at: string
+          entity: string
+          entity_id: string | null
+          id: string
+          payload: Json | null
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          created_at?: string
+          entity: string
+          entity_id?: string | null
+          id?: string
+          payload?: Json | null
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          created_at?: string
+          entity?: string
+          entity_id?: string | null
+          id?: string
+          payload?: Json | null
+        }
+        Relationships: []
+      }
+      check_ins: {
+        Row: {
+          actual_value: number | null
+          created_at: string
+          employee_note: string | null
+          goal_id: string
+          id: string
+          manager_note: string | null
+          quarter: Database["public"]["Enums"]["quarter"]
+          score: number | null
+          updated_at: string
+        }
+        Insert: {
+          actual_value?: number | null
+          created_at?: string
+          employee_note?: string | null
+          goal_id: string
+          id?: string
+          manager_note?: string | null
+          quarter: Database["public"]["Enums"]["quarter"]
+          score?: number | null
+          updated_at?: string
+        }
+        Update: {
+          actual_value?: number | null
+          created_at?: string
+          employee_note?: string | null
+          goal_id?: string
+          id?: string
+          manager_note?: string | null
+          quarter?: Database["public"]["Enums"]["quarter"]
+          score?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "check_ins_goal_id_fkey"
+            columns: ["goal_id"]
+            isOneToOne: false
+            referencedRelation: "goals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      goal_sheets: {
+        Row: {
+          approved_at: string | null
+          created_at: string
+          cycle_year: number
+          employee_id: string
+          id: string
+          manager_comments: string | null
+          manager_id: string | null
+          status: Database["public"]["Enums"]["sheet_status"]
+          submitted_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          approved_at?: string | null
+          created_at?: string
+          cycle_year: number
+          employee_id: string
+          id?: string
+          manager_comments?: string | null
+          manager_id?: string | null
+          status?: Database["public"]["Enums"]["sheet_status"]
+          submitted_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          approved_at?: string | null
+          created_at?: string
+          cycle_year?: number
+          employee_id?: string
+          id?: string
+          manager_comments?: string | null
+          manager_id?: string | null
+          status?: Database["public"]["Enums"]["sheet_status"]
+          submitted_at?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "goal_sheets_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "goal_sheets_manager_id_fkey"
+            columns: ["manager_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      goals: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_shared: boolean
+          sheet_id: string
+          sort_order: number
+          target: number
+          thrust_area: string
+          title: string
+          uom: string
+          uom_type: Database["public"]["Enums"]["uom_type"]
+          weightage: number
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_shared?: boolean
+          sheet_id: string
+          sort_order?: number
+          target: number
+          thrust_area: string
+          title: string
+          uom: string
+          uom_type?: Database["public"]["Enums"]["uom_type"]
+          weightage: number
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_shared?: boolean
+          sheet_id?: string
+          sort_order?: number
+          target?: number
+          thrust_area?: string
+          title?: string
+          uom?: string
+          uom_type?: Database["public"]["Enums"]["uom_type"]
+          weightage?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "goals_sheet_id_fkey"
+            columns: ["sheet_id"]
+            isOneToOne: false
+            referencedRelation: "goal_sheets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          department: string | null
+          designation: string | null
+          email: string
+          full_name: string
+          id: string
+          manager_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          department?: string | null
+          designation?: string | null
+          email: string
+          full_name?: string
+          id: string
+          manager_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          department?: string | null
+          designation?: string | null
+          email?: string
+          full_name?: string
+          id?: string
+          manager_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_manager_id_fkey"
+            columns: ["manager_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "manager" | "employee"
+      quarter: "Q1" | "Q2" | "Q3" | "Q4" | "YEAR_END"
+      sheet_status: "draft" | "submitted" | "approved" | "returned" | "locked"
+      uom_type: "higher_better" | "lower_better" | "binary" | "milestone"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +401,11 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "manager", "employee"],
+      quarter: ["Q1", "Q2", "Q3", "Q4", "YEAR_END"],
+      sheet_status: ["draft", "submitted", "approved", "returned", "locked"],
+      uom_type: ["higher_better", "lower_better", "binary", "milestone"],
+    },
   },
 } as const
