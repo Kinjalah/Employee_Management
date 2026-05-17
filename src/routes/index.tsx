@@ -101,5 +101,3 @@ function Index() {
     </div>
   );
 }
-// silence unused warning if Navigate not used
-void Navigate;
