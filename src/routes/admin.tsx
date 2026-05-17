@@ -250,10 +250,6 @@ function AdminPage() {
           </Card>
         </TabsContent>
       </Tabs>
-      <Select value="">{/* keeps Select import used */}
-        <SelectTrigger className="hidden"><SelectValue /></SelectTrigger>
-        <SelectContent><SelectItem value="x">x</SelectItem></SelectContent>
-      </Select>
     </div>
   );
 }
