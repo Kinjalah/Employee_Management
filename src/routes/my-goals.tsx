@@ -160,7 +160,7 @@ function MyGoalsPage() {
     void load();
   };
 
-  const upsertCheckin = async (goalId: string, quarter: string, patch: Partial<CheckIn>) => {
+  const upsertCheckin = async (goalId: string, quarter: typeof QUARTERS[number], patch: Partial<CheckIn>) => {
     const existing = checkins.find((c) => c.goal_id === goalId && c.quarter === quarter);
     const goal = goals.find((g) => g.id === goalId)!;
     const actual = patch.actual_value ?? existing?.actual_value ?? null;

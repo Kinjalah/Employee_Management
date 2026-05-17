@@ -89,8 +89,6 @@ function TeamPage() {
 
   if (authLoading || loading) return <div className="flex justify-center py-20"><Loader2 className="size-6 animate-spin" /></div>;
 
-  const total = sheets.reduce((a, g) => a + Number(g.weightage ?? 0), 0); void total;
-
   return (
     <div className="space-y-6">
       <div>
