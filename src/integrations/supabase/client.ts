@@ -19,6 +19,38 @@ function createSupabaseClient() {
   }
 
   return createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+    // Ensure the client can attach an existing session token synchronously
+    // (prevents unauthenticated background HEAD/prefetch requests being sent)
+    fetch: (input: RequestInfo, init?: RequestInit) => {
+      try {
+        if (typeof window !== 'undefined' && window.localStorage) {
+          // try a few known localStorage keys where supabase-js may store session
+          const candidates = Object.keys(window.localStorage || {}).filter(k => /supabase|sb-|auth/i.test(k));
+          for (const k of candidates) {
+            try {
+              const v = window.localStorage.getItem(k);
+              if (!v) continue;
+              // attempt JSON parse and find access_token
+              const parsed = JSON.parse(v);
+              const token = parsed?.currentSession?.access_token || parsed?.access_token || parsed?.provider_token || parsed?.refresh_token || parsed?.accessToken || parsed?.token?.access_token;
+              if (typeof token === 'string') {
+                init = init || {};
+                init.headers = {
+                  ...(init.headers as Record<string, string> || {}),
+                  Authorization: `Bearer ${token}`,
+                };
+                break;
+              }
+            } catch (e) {
+              // ignore parse errors and continue
+            }
+          }
+        }
+      } catch (e) {
+        // noop
+      }
+      return fetch(input, init as RequestInit);
+    },
     auth: {
       storage: typeof window !== 'undefined' ? localStorage : undefined,
       persistSession: true,

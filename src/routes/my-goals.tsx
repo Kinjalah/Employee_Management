@@ -13,7 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2, Plus, Trash2, Send, Save, Lock } from "lucide-react";
 import { toast } from "sonner";
-import { computeScore, type UomType, CURRENT_QUARTER_WINDOWS } from "@/lib/scoring";
+import { computeScore, type UomType, CURRENT_QUARTER_WINDOWS, isQuarterOpen, isGoalSettingOpen } from "@/lib/scoring";
 
 export const Route = createFileRoute("/my-goals")({ component: MyGoalsPage });
 
@@ -24,6 +24,7 @@ interface Goal {
   id: string; sheet_id: string;
   thrust_area: string; title: string; description: string;
   uom: string; uom_type: UomType; target: number; weightage: number; sort_order: number; is_shared: boolean;
+  source_goal_id?: string | null;
 }
 interface CheckIn { id: string; goal_id: string; quarter: string; actual_value: number | null; employee_note: string; manager_note: string; score: number | null; }
 interface Manager { id: string; full_name: string; email: string; }
@@ -32,7 +33,7 @@ const CYCLE = new Date().getFullYear();
 const QUARTERS = ["Q1", "Q2", "Q3", "Q4", "YEAR_END"] as const;
 
 function MyGoalsPage() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, isAdmin } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [sheet, setSheet] = useState<Sheet | null>(null);
@@ -259,25 +260,25 @@ function MyGoalsPage() {
                         <div className="grid gap-3 md:grid-cols-2">
                           <div className="space-y-1.5">
                             <Label>Thrust Area</Label>
-                            <Input value={g.thrust_area} onChange={(e) => updateGoal(g.id, { thrust_area: e.target.value })} disabled={!editable} placeholder="e.g. Customer Success" />
+                            <Input value={g.thrust_area} onChange={(e) => updateGoal(g.id, { thrust_area: e.target.value })} disabled={!editable || !!g.source_goal_id} placeholder="e.g. Customer Success" />
                           </div>
                           <div className="space-y-1.5">
                             <Label>Title</Label>
-                            <Input value={g.title} onChange={(e) => updateGoal(g.id, { title: e.target.value })} disabled={!editable} placeholder="e.g. Reduce response time" />
+                            <Input value={g.title} onChange={(e) => updateGoal(g.id, { title: e.target.value })} disabled={!editable || !!g.source_goal_id} placeholder="e.g. Reduce response time" />
                           </div>
                         </div>
                         <div className="space-y-1.5">
                           <Label>Description</Label>
-                          <Textarea rows={2} value={g.description} onChange={(e) => updateGoal(g.id, { description: e.target.value })} disabled={!editable} />
+                          <Textarea rows={2} value={g.description} onChange={(e) => updateGoal(g.id, { description: e.target.value })} disabled={!editable || !!g.source_goal_id} />
                         </div>
                         <div className="grid gap-3 md:grid-cols-4">
                           <div className="space-y-1.5">
                             <Label>UoM</Label>
-                            <Input value={g.uom} onChange={(e) => updateGoal(g.id, { uom: e.target.value })} disabled={!editable} placeholder="hours, %, #, ₹" />
+                            <Input value={g.uom} onChange={(e) => updateGoal(g.id, { uom: e.target.value })} disabled={!editable || !!g.source_goal_id} placeholder="hours, %, #, ₹" />
                           </div>
                           <div className="space-y-1.5">
                             <Label>UoM Type</Label>
-                            <Select value={g.uom_type} onValueChange={(v) => updateGoal(g.id, { uom_type: v as UomType })} disabled={!editable}>
+                            <Select value={g.uom_type} onValueChange={(v) => updateGoal(g.id, { uom_type: v as UomType })} disabled={!editable || !!g.source_goal_id}>
                               <SelectTrigger><SelectValue /></SelectTrigger>
                               <SelectContent>
                                 <SelectItem value="higher_better">Higher is better</SelectItem>
@@ -289,7 +290,7 @@ function MyGoalsPage() {
                           </div>
                           <div className="space-y-1.5">
                             <Label>Target</Label>
-                            <Input type="number" value={g.target} onChange={(e) => updateGoal(g.id, { target: Number(e.target.value) })} disabled={!editable} />
+                            <Input type="number" value={g.target} onChange={(e) => updateGoal(g.id, { target: Number(e.target.value) })} disabled={!editable || !!g.source_goal_id} />
                           </div>
                           <div className="space-y-1.5">
                             <Label>Weightage (%)</Label>
@@ -350,16 +351,18 @@ function MyGoalsPage() {
                           <TableCell className="text-sm">{g.target} {g.uom}</TableCell>
                           {QUARTERS.map((q) => {
                             const ci = checkins.find((c) => c.goal_id === g.id && c.quarter === q);
+                            const open = isQuarterOpen(q);
                             return (
                               <TableCell key={q}>
                                 <Input
-                                  type="number" className="h-8 w-24"
+                                  type="number" className="h-8 w-24" disabled={!open && !isAdmin}
                                   defaultValue={ci?.actual_value ?? ""}
                                   onBlur={(e) => {
                                     const v = e.target.value === "" ? null : Number(e.target.value);
                                     if (v !== (ci?.actual_value ?? null)) void upsertCheckin(g.id, q, { actual_value: v });
                                   }}
                                 />
+                                {!open && !isAdmin && <div className="text-xs text-muted-foreground">Window closed</div>}
                                 {ci?.score != null && <div className="text-xs mt-1 text-muted-foreground">Score: {ci.score.toFixed(0)}%</div>}
                               </TableCell>
                             );

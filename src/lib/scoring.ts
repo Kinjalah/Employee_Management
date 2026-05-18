@@ -39,3 +39,29 @@ export const CURRENT_QUARTER_WINDOWS: Record<string, { quarter: string; label: s
   Q4: { quarter: "Q4", label: "Q4 — January" },
   YEAR_END: { quarter: "YEAR_END", label: "Year-end — March/April" },
 };
+
+export function isQuarterOpen(quarter: string, now = new Date()): boolean {
+  const m = now.getMonth() + 1; // 1-based month
+  switch (quarter) {
+    case "Q1": return m === 7; // July
+    case "Q2": return m === 10; // October
+    case "Q3": return m === 1; // January
+    case "Q4": return m === 3 || m === 4; // March or April
+    case "YEAR_END": return m === 3 || m === 4; // treat same as Q4 window
+    default: return false;
+  }
+}
+
+export function isGoalSettingOpen(now = new Date()): boolean {
+  const m = now.getMonth() + 1;
+  return m === 5; // May
+}
+
+export function getActiveQuarter(now = new Date()): string | null {
+  const m = now.getMonth() + 1;
+  if (m === 7) return "Q1"; // July
+  if (m === 10) return "Q2"; // October
+  if (m === 1) return "Q3"; // January
+  if (m === 3 || m === 4) return "Q4"; // March/April
+  return null;
+}
