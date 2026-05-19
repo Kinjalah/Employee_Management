@@ -1,0 +1,14 @@
+services:
+  - type: static
+    name: inhouse-goalsetting-frontend
+    env: node
+    plan: free
+    repo: https://github.com/Kinjalah/Employee_Management
+    branch: main
+    buildCommand: npm ci && npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: VITE_SUPABASE_URL
+        fromSecret: VITE_SUPABASE_URL
+      - key: VITE_SUPABASE_PUBLISHABLE_KEY
+        fromSecret: VITE_SUPABASE_PUBLISHABLE_KEY

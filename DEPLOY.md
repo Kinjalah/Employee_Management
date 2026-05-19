@@ -35,3 +35,19 @@ Notes:
 Next steps I can take for you:
 - Add an automated migration step (requires `SUPABASE_ACCESS_TOKEN` and `SUPABASE_REF`).
 - Create a Vercel or Netlify deployment workflow instead.
+
+## Render (recommended for simple static hosting)
+
+- Render supports deploying the Vite frontend as a Static Site. A `render.yaml` manifest has been added to this repository for easy import.
+- Quick steps:
+   1. Go to Render (https://dashboard.render.com) → New → Static Site → "Connect a repository" and choose `Kinjalah/Employee_Management` (branch `main`).
+   2. Build Command: `npm ci && npm run build`
+   3. Publish Directory: `dist`
+   4. Add these Environment Variables in Render's settings (as secrets):
+       - `VITE_SUPABASE_URL`
+       - `VITE_SUPABASE_PUBLISHABLE_KEY`
+   5. Create and deploy. Render will build and publish the `dist` folder; subsequent pushes to `main` will trigger redeploys.
+
+Notes:
+- Render hosts only the frontend in this setup; your Supabase backend (Auth/Postgres/RLS) remains hosted in your Supabase project.
+- To enable auto-creation from the repo import flow, use the `render.yaml` manifest at the repo root.
