@@ -9,13 +9,21 @@
   <body>
     <div id="root"></div>
     <script>
-      // Minimal fallback for SSR router state to avoid runtime invariant errors
+      // TSR stub matching server-injected script: provides h(), e(), c(), p(fn) and buffer
       window.$_TSR = window.$_TSR || {
+        hydrated: false,
+        streamEnded: false,
         initialized: true,
         buffer: [],
         t: new Map(),
-        router: { matches: [], lastMatchId: null, manifest: {}, dehydratedData: {} }
+        router: { matches: [], lastMatchId: null, manifest: {}, dehydratedData: {} },
+        h(){this.hydrated = true; this.c()},
+        e(){this.streamEnded = true; this.c()},
+        c(){if(this.hydrated && this.streamEnded){try{delete window.$_TSR; delete window.$R?.tsr}catch(_){} }},
+        p(fn){ this.initialized ? fn() : this.buffer.push(fn) }
       };
+      // flush any buffered functions immediately
+      if(window.$_TSR.buffer && window.$_TSR.initialized){ for(const f of window.$_TSR.buffer) try{ f() } catch(e){} window.$_TSR.buffer.length = 0 }
     </script>
     <script type="module" src="./assets/index-DnPBFV6c.js"></script>
   </body>
