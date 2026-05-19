@@ -8,6 +8,15 @@
   </head>
   <body>
     <div id="root"></div>
+    <script>
+      // Minimal fallback for SSR router state to avoid runtime invariant errors
+      window.$_TSR = window.$_TSR || {
+        initialized: true,
+        buffer: [],
+        t: new Map(),
+        router: { matches: [], lastMatchId: null, manifest: {}, dehydratedData: {} }
+      };
+    </script>
     <script type="module" src="/assets/index-DnPBFV6c.js"></script>
   </body>
 </html>
