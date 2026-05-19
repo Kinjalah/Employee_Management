@@ -10,23 +10,28 @@
     <div id="root"></div>
     <script>
       // TSR stub matching server-injected script: provides h(), e(), c(), p(fn) and buffer
-      window.$_TSR = window.$_TSR || {
-        hydrated: false,
-        streamEnded: false,
-        initialized: true,
-        buffer: [],
-        t: new Map(),
-        router: { matches: [], lastMatchId: null, manifest: { routes: { __root__: { children: ["/","/admin","/login","/my-goals","/team"], preloads: ["/assets/index-DnPBFV6c.js"] } } , dehydratedData: {} },
-        h(){this.hydrated = true; this.c()},
-        e(){this.streamEnded = true; this.c()},
-        c(){if(this.hydrated && this.streamEnded){try{delete window.$_TSR; delete window.$R?.tsr}catch(_){} }},
-        p(fn){ this.initialized ? fn() : this.buffer.push(fn) }
-      };
-      if (window.$_TSR.buffer && window.$_TSR.initialized) {
-        for (const f of window.$_TSR.buffer) {
+      // Minimal, robust TSR stub for client bootstrap.
+      window.$_TSR = window.$_TSR || {};
+      // Start uninitialized so the client can register work via p(fn)
+      window.$_TSR.hydrated = window.$_TSR.hydrated || false;
+      window.$_TSR.streamEnded = window.$_TSR.streamEnded || false;
+      window.$_TSR.initialized = window.$_TSR.initialized || false;
+      window.$_TSR.buffer = window.$_TSR.buffer || [];
+      window.$_TSR.t = window.$_TSR.t || new Map();
+      // Provide a minimal router manifest the bundle expects.
+      window.$_TSR.router = window.$_TSR.router || { matches: [], lastMatchId: null, manifest: { routes: { __root__: { children: ["/","/admin","/login","/my-goals","/team"], preloads: ["/assets/index-DnPBFV6c.js"] } }, dehydratedData: {} } };
+      window.$_TSR.h = window.$_TSR.h || function(){ this.hydrated = true; this.c && this.c(); };
+      window.$_TSR.e = window.$_TSR.e || function(){ this.streamEnded = true; this.c && this.c(); };
+      // Do not delete the global; keep it available for the client runtime.
+      window.$_TSR.c = window.$_TSR.c || function(){ if(this.hydrated && this.streamEnded){ /* keep runtime object available */ } };
+      window.$_TSR.p = window.$_TSR.p || function(fn){ if(this.initialized) try{ fn() }catch(e){} else this.buffer.push(fn); };
+      // Once defined, mark initialized and flush buffered functions.
+      if (!window.$_TSR.initialized) {
+        window.$_TSR.initialized = true;
+        while (window.$_TSR.buffer && window.$_TSR.buffer.length) {
+          const f = window.$_TSR.buffer.shift();
           try { f() } catch (e) {}
         }
-        window.$_TSR.buffer.length = 0;
       }
     </script>
     <script type="module" src="/assets/index-DnPBFV6c.js"></script>
