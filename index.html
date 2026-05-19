@@ -22,7 +22,12 @@
         c(){if(this.hydrated && this.streamEnded){try{delete window.$_TSR; delete window.$R?.tsr}catch(_){} }},
         p(fn){ this.initialized ? fn() : this.buffer.push(fn) }
       };
-      if(window.$_TSR.buffer && window.$_TSR.initialized){ for(const f of window.$_TSR.buffer) try{ f() } catch(e){} window.$_TSR.buffer.length = 0 }
+      if (window.$_TSR.buffer && window.$_TSR.initialized) {
+        for (const f of window.$_TSR.buffer) {
+          try { f() } catch (e) {}
+        }
+        window.$_TSR.buffer.length = 0;
+      }
     </script>
     <script type="module" src="/assets/index-DnPBFV6c.js"></script>
   </body>
