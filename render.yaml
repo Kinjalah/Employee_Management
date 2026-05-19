@@ -2,6 +2,8 @@ services:
   - type: static
     name: inhouse-goalsetting-frontend
     env: node
+    nodeVersion: 18
+    packageManager: npm
     plan: free
     repo: https://github.com/Kinjalah/Employee_Management
     branch: main

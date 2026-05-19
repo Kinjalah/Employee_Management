@@ -51,3 +51,20 @@ Next steps I can take for you:
 Notes:
 - Render hosts only the frontend in this setup; your Supabase backend (Auth/Postgres/RLS) remains hosted in your Supabase project.
 - To enable auto-creation from the repo import flow, use the `render.yaml` manifest at the repo root.
+
+Troubleshooting Render builds:
+
+- If your Render deploy fails with `Publish directory dist does not exist` it often means Render ran the wrong package manager (e.g., Bun) or the build command didn't run. To fix:
+   1. In the Render service settings override the **Build Command** to: `npm ci && npm run build`.
+   2. Set the **Environment / Node Version** to a Node LTS (e.g., `18`).
+   3. In the Render UI set the **Package Manager** to `npm` (or add `packageManager: npm` in `render.yaml`).
+   4. Clear the service build cache (Render UI → Advanced → Clear Build Cache) and redeploy.
+- Verify locally before pushing by running:
+
+```bash
+npm ci
+npm run build
+ls -la dist
+```
+
+If `dist` exists locally, Render should produce it when using the npm build command and the correct Node/npm environment.
