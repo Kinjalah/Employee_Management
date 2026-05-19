@@ -1,0 +1,35 @@
+name: Fetch Failed Run Logs
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  fetch-logs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch failed run logs
+        env:
+          GH_PAT: ${{ secrets.CI_GITHUB_PAT }}
+          TARGET_RUN_ID: 26069322930
+        run: |
+          echo "Using PAT: length=${#GH_PAT}"
+          echo "Fetching logs for run $TARGET_RUN_ID"
+          curl -s -H "Authorization: token $GH_PAT" -L \
+            "https://api.github.com/repos/Kinjalah/Employee_Management/actions/runs/$TARGET_RUN_ID/logs" -o logs.zip || true
+          if [ -f logs.zip ]; then
+            mkdir -p logs_unzip
+            unzip -q logs.zip -d logs_unzip || true
+            echo "---- Begin log files list ----"
+            ls -R logs_unzip || true
+            echo "---- Begin tail of build job logs ----"
+            # find build job log and print last 200 lines
+            find logs_unzip -type f -name '*build*' -print0 | while IFS= read -r -d '' file; do
+              echo "==> $file";
+              tail -n 200 "$file" || true;
+            done
+          else
+            echo "Failed to download logs.zip or logs.zip empty"
+          fi
